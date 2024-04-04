@@ -1,0 +1,28 @@
+[Unit]
+Description=gunicorn daemon
+After=network.target
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/inspector_demo_app
+ExecStart=/home/ubuntu/inspector_demo_app/venv/bin/gunicorn --workers 3 --bind unix:/home/ubuntu/inspector_demo_app/inspector_demo.sock inspector_demo.wsgi:application
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+
+
+server {
+  listen 80;
+  server_name 34.215.27.198;
+  location = /favicon.ico { access_log off; log_not_found off; }
+  location /static/ {
+      root /home/ubuntu/inspector_demo_app;
+  }
+  location / {
+      include proxy_params;
+      proxy_pass http://unix:/home/ubuntu/inspector_demo_app/inspector_demo.sock;
+  }
+}
